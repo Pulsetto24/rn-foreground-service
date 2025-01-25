@@ -1,5 +1,12 @@
 declare const ReactNativeForegroundService: {
-  register: () => void;
+  register: ({
+    config,
+  }: {
+    config: {
+      alert: boolean;
+      onServiceErrorCallBack: () => void;
+    };
+  }) => void;
   start: ({
     id,
     title,
@@ -109,7 +116,7 @@ declare const ReactNativeForegroundService: {
       taskId?: string | undefined;
       onSuccess?: (() => void) | undefined;
       onError?: ((e) => void) | undefined;
-    }
+    },
   ) => string;
   update_task: (
     task: any,
@@ -125,7 +132,7 @@ declare const ReactNativeForegroundService: {
       taskId?: string | undefined;
       onSuccess?: (() => void) | undefined;
       onError?: (() => void) | undefined;
-    }
+    },
   ) => string;
   remove_task: (taskId: any) => void;
   is_task_running: (taskId: any) => boolean;
