@@ -5,13 +5,15 @@ import {
   NativeEventEmitter,
   Alert,
   Platform,
-} from 'react-native';
+} from "react-native";
 
 // ANDROID ONLY
 // Copied and adapted from https://github.com/voximplant/react-native-foreground-service
 // and https://github.com/zo0r/react-native-push-notification/
-const isAndroid = Platform.OS === 'android';
-const ForegroundServiceModule = isAndroid ? NativeModules.ForegroundService : null;
+const isAndroid = Platform.OS === "android";
+const ForegroundServiceModule = isAndroid
+  ? NativeModules.ForegroundService
+  : null;
 
 /**
  * @property {number} id - Unique notification id
@@ -61,7 +63,7 @@ class ForegroundService {
    * @return Promise
    */
   static async startService(notificationConfig) {
-    console.log('Start Service Triggered');
+    console.log("Start Service Triggered");
     return await ForegroundServiceModule.startService(notificationConfig);
   }
 
@@ -75,7 +77,7 @@ class ForegroundService {
    * @return Promise
    */
   static async updateNotification(notificationConfig) {
-    console.log(' Update Service Triggered');
+    console.log(" Update Service Triggered");
     return await ForegroundServiceModule.updateNotification(notificationConfig);
   }
 
@@ -86,8 +88,8 @@ class ForegroundService {
    * @return Promise
    */
   static async cancelNotification(id) {
-    console.log('Cancel Service Triggered');
-    return await ForegroundServiceModule.cancelNotification({id: id});
+    console.log("Cancel Service Triggered");
+    return await ForegroundServiceModule.cancelNotification({ id: id });
   }
 
   /**
@@ -96,7 +98,7 @@ class ForegroundService {
    * @return Promise
    */
   static async stopService() {
-    console.log('Stop Service Triggered');
+    console.log("Stop Service Triggered");
     return await ForegroundServiceModule.stopService();
   }
 
@@ -134,10 +136,10 @@ class ForegroundService {
   }
 }
 
-const randHashString = len => {
-  return 'x'.repeat(len).replace(/[xy]/g, c => {
+const randHashString = (len) => {
+  return "x".repeat(len).replace(/[xy]/g, (c) => {
     let r = (Math.random() * 16) | 0,
-      v = c == 'x' ? r : (r & 0x3) | 0x8;
+      v = c == "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 };
@@ -147,7 +149,7 @@ let tasks = {};
 const samplingInterval = 500; //ms
 let serviceRunning = false;
 
-const deleteTask = taskId => {
+const deleteTask = (taskId) => {
   delete tasks[taskId];
 };
 
@@ -164,7 +166,7 @@ const taskRunner = async () => {
       if (now >= task.nextExecutionTime) {
         //push this task's promise for later execution
         promises.push(
-          Promise.resolve(task.task()).then(task.onSuccess, task.onError),
+          Promise.resolve(task.task()).then(task.onSuccess, task.onError)
         );
         //if this is a looped task then increment its nextExecutionTime by delay for the next interval
         if (task.onLoop) task.nextExecutionTime = now + task.delay;
@@ -176,38 +178,38 @@ const taskRunner = async () => {
     //execute all tasks promises in parallel
     await Promise.all(promises);
   } catch (error) {
-    console.log('Error in FgService taskRunner:', error);
+    console.log("Error in FgService taskRunner:", error);
   }
 };
 
-const register = ({config: {alert, onServiceErrorCallBack}}) => {
-  if (!serviceRunning) {
+const register = (config) => {
+  if (!serviceRunning && isAndroid) {
     setupServiceErrorListener({
-      alert,
-      onServiceFailToStart: onServiceErrorCallBack,
+      alert: config.alert,
+      onServiceFailToStart: config.onServiceErrorCallBack,
     });
-    return ForegroundService.registerForegroundTask('myTaskName', taskRunner);
+    return ForegroundService.registerForegroundTask("myTaskName", taskRunner);
   }
 };
 
 const start = async ({
   id,
   title = id,
-  message = 'Foreground Service Running...',
+  message = "Foreground Service Running...",
   ServiceType,
   vibration = false,
-  visibility = 'public',
-  icon = 'ic_notification',
-  largeIcon = 'ic_launcher',
-  importance = 'max',
-  number = '1',
+  visibility = "public",
+  icon = "ic_notification",
+  largeIcon = "ic_launcher",
+  importance = "max",
+  number = "1",
   button = false,
-  buttonText = '',
-  buttonOnPress = 'buttonOnPress',
+  buttonText = "",
+  buttonOnPress = "buttonOnPress",
   button2 = false,
-  button2Text = '',
-  button2OnPress = 'button2OnPress',
-  mainOnPress = 'mainOnPress',
+  button2Text = "",
+  button2OnPress = "button2OnPress",
+  mainOnPress = "mainOnPress",
   progress,
   color,
   setOnlyAlertOnce,
@@ -240,12 +242,12 @@ const start = async ({
       });
       serviceRunning = true;
       await ForegroundService.runTask({
-        taskName: 'myTaskName',
+        taskName: "myTaskName",
         delay: samplingInterval,
         loopDelay: samplingInterval,
         onLoop: true,
       });
-    } else console.log('Foreground service is already running.');
+    } else console.log("Foreground service is already running.");
   } catch (error) {
     throw error;
   }
@@ -254,21 +256,21 @@ const start = async ({
 const update = async ({
   id,
   title = id,
-  message = 'Foreground Service Running...',
+  message = "Foreground Service Running...",
   ServiceType,
   vibration = false,
-  visibility = 'public',
-  largeIcon = 'ic_launcher',
-  icon = 'ic_launcher',
-  importance = 'max',
-  number = '0',
+  visibility = "public",
+  largeIcon = "ic_launcher",
+  icon = "ic_launcher",
+  importance = "max",
+  number = "0",
   button = false,
-  buttonText = '',
-  buttonOnPress = 'buttonOnPress',
+  buttonText = "",
+  buttonOnPress = "buttonOnPress",
   button2 = false,
-  button2Text = '',
-  button2OnPress = 'button2OnPress',
-  mainOnPress = 'mainOnPress',
+  button2Text = "",
+  button2OnPress = "button2OnPress",
+  mainOnPress = "mainOnPress",
   progress,
   color,
   setOnlyAlertOnce,
@@ -301,7 +303,7 @@ const update = async ({
     if (!serviceRunning) {
       serviceRunning = true;
       await ForegroundService.runTask({
-        taskName: 'myTaskName',
+        taskName: "myTaskName",
         delay: samplingInterval,
         loopDelay: samplingInterval,
         onLoop: true,
@@ -330,10 +332,10 @@ const add_task = (
     taskId = randHashString(12),
     onSuccess = () => {},
     onError = () => {},
-  },
+  }
 ) => {
   const _type = typeof task;
-  if (_type !== 'function')
+  if (_type !== "function")
     throw `invalid task of type ${_type}, expected a function or a Promise`;
 
   if (!tasks[taskId])
@@ -358,10 +360,10 @@ const update_task = (
     taskId = randHashString(12),
     onSuccess = () => {},
     onError = () => {},
-  },
+  }
 ) => {
   const _type = typeof task;
-  if (_type !== 'function')
+  if (_type !== "function")
     throw `invalid task of type ${_type}, expected a function or a Promise`;
 
   tasks[taskId] = {
@@ -377,20 +379,20 @@ const update_task = (
   return taskId;
 };
 
-const remove_task = taskId => deleteTask(taskId);
+const remove_task = (taskId) => deleteTask(taskId);
 
-const is_task_running = taskId => (tasks[taskId] ? true : false);
+const is_task_running = (taskId) => (tasks[taskId] ? true : false);
 
 const remove_all_tasks = () => (tasks = {});
 
-const get_task = taskId => tasks[taskId];
+const get_task = (taskId) => tasks[taskId];
 
 const get_all_tasks = () => tasks;
 
-const eventListener = callBack => {
+const eventListener = (callBack) => {
   let subscription = DeviceEventEmitter.addListener(
-    'notificationClickHandle',
-    callBack,
+    "notificationClickHandle",
+    callBack
   );
 
   return function cleanup() {
@@ -398,10 +400,12 @@ const eventListener = callBack => {
   };
 };
 
-const eventEmitter = isAndroid ? new NativeEventEmitter(ForegroundServiceModule) : null;
-export function setupServiceErrorListener({onServiceFailToStart, alert}) {
-  const listener = eventEmitter.addListener('onServiceError', message => {
-    alert && Alert.alert('Service Error', message);
+const eventEmitter = isAndroid
+  ? new NativeEventEmitter(ForegroundServiceModule)
+  : null;
+export function setupServiceErrorListener({ onServiceFailToStart, alert }) {
+  const listener = eventEmitter.addListener("onServiceError", (message) => {
+    alert && Alert.alert("Service Error", message);
     if (onServiceFailToStart) {
       onServiceFailToStart();
     }
