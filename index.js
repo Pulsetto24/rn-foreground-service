@@ -3,14 +3,15 @@ import {
   AppRegistry,
   DeviceEventEmitter,
   NativeEventEmitter,
-  Alert
+  Alert,
+  Platform,
 } from 'react-native';
 
 // ANDROID ONLY
 // Copied and adapted from https://github.com/voximplant/react-native-foreground-service
 // and https://github.com/zo0r/react-native-push-notification/
-
-const ForegroundServiceModule = NativeModules.ForegroundService;
+const isAndroid = Platform.OS === 'android';
+const ForegroundServiceModule = isAndroid ? NativeModules.ForegroundService : null;
 
 /**
  * @property {number} id - Unique notification id
@@ -397,7 +398,7 @@ const eventListener = callBack => {
   };
 };
 
-const eventEmitter = new NativeEventEmitter(ForegroundServiceModule);
+const eventEmitter = isAndroid ? new NativeEventEmitter(ForegroundServiceModule) : null;
 export function setupServiceErrorListener({onServiceFailToStart, alert}) {
   const listener = eventEmitter.addListener('onServiceError', message => {
     alert && Alert.alert('Service Error', message);
