@@ -185,8 +185,8 @@ const taskRunner = async () => {
 const register = (config) => {
   if (!serviceRunning && isAndroid) {
     setupServiceErrorListener({
-      alert: config.alert,
-      onServiceFailToStart: config.onServiceErrorCallBack,
+      alert: config?.alert,
+      onServiceFailToStart: config?.onServiceErrorCallBack,
     });
     return ForegroundService.registerForegroundTask("myTaskName", taskRunner);
   }
